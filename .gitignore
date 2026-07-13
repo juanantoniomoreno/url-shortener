@@ -18,5 +18,8 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 
-# SDD artifacts
-sdd/
+# Local SDD config (engram project registration)
+.engram/
+
+# Agent tool registry (machine-generated, environment-specific)
+.atl/

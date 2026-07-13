@@ -1,0 +1,68 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: URL Shortener — Symfony 7 + Messenger (AMQP/RabbitMQ) + Doctrine ORM 3.6
+  + PostgreSQL 16. Frontend: React 18 + Vite 5. Docker Compose (5 services).
+  Architecture: Event-driven with async Messenger transport. Single 'async' AMQP
+  transport. YAML-based routing (`config/routes.yaml`). Autowire + autoconfigure DI.
+  Testing: PHPUnit 11.5 (Unit/Integration/Functional layers) with DAMA DoctrineTestBundle
+  (SQLite in-memory). Playwright 1.60 for E2E. CI: GitHub Actions.
+  Style: PHP strict_types=1 everywhere. Constructor injection with PHP 8 promoted
+  properties. Hexagonal/DDD-lite package structure (Domain/Entity mapping).
+  PHPUnit failOnDeprecation/Notice/Warning enabled.
+
+strict_tdd: true
+
+testing:
+  backend:
+    runner: PHPUnit
+    version: "11.5"
+    command: php vendor/bin/phpunit
+    suites:
+      - Unit (tests/Unit)
+      - Integration (tests/Integration)
+      - Functional (tests/Functional)
+    isolation: DAMA DoctrineTestBundle (transactional rollback)
+    database: SQLite :memory: (test) / PostgreSQL 16 (prod)
+  frontend:
+    runner: Playwright
+    version: "1.60"
+    command: npx playwright test
+    dir: tests/e2e
+  coverage:
+    available: false
+    reason: No coverage tool configured; CI sets coverage=none
+  quality:
+    linter: null
+    type_checker: null
+    formatter: null
+    notes: No PHP-CS-Fixer, PHPStan, ESLint, or Prettier detected
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - State intent, scope, and approach clearly
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns
+      - PHP strict_types=1 on all new files
+      - Constructor injection with promoted properties
+    tdd: true
+    test_command: php vendor/bin/phpunit
+  verify:
+    test_command: php vendor/bin/phpunit
+    e2e_command: npx playwright test
+    build_command: npm run build
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
