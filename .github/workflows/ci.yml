@@ -18,8 +18,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
-          extensions: pdo_sqlite, sqlite3
+          php-version: "8.4"
+          extensions: pdo_sqlite, sqlite3, amqp, xml, dom, xmlwriter
           coverage: none
 
       - name: Cache Composer dependencies

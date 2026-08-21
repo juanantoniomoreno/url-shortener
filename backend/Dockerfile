@@ -9,12 +9,13 @@ RUN apk add --no-cache \
     libpq \
     rabbitmq-c \
     rabbitmq-c-dev \
+    libxml2-dev \
     $PHPIZE_DEPS \
     postgresql-dev \
     && pecl install amqp \
     && docker-php-ext-enable amqp \
-    && docker-php-ext-install pdo pdo_pgsql opcache \
-    && apk del $PHPIZE_DEPS postgresql-dev rabbitmq-c-dev
+    && docker-php-ext-install dom xml xmlwriter pdo pdo_pgsql opcache \
+    && apk del $PHPIZE_DEPS postgresql-dev rabbitmq-c-dev libxml2-dev
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
