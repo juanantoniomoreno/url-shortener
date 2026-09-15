@@ -35,16 +35,18 @@ jobs:
       - name: Warm up test cache
         run: php bin/console cache:clear --env=test
 
-      - name: Create test database schema
+      - name: Validate test database schema
         run: |
           export APP_ENV=test
-          export DATABASE_URL="sqlite:////tmp/url-shortener-test.db"
-          php bin/console doctrine:schema:create --env=test
+          export DATABASE_URL="sqlite:////tmp/url-shortener-test.sqlite"
+          rm -f /tmp/url-shortener-test.sqlite
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+          php bin/console doctrine:schema:validate --skip-sync --env=test
 
       - name: Run PHPUnit
         run: |
           export APP_ENV=test
-          export DATABASE_URL="sqlite:////tmp/url-shortener-test.db"
+          export DATABASE_URL="sqlite:////tmp/url-shortener-test.sqlite"
           php vendor/bin/phpunit
 
   frontend:

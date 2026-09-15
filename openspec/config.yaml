@@ -7,7 +7,7 @@ context: |
   Architecture: Event-driven with async Messenger transport. Single 'async' AMQP
   transport. YAML-based routing (`config/routes.yaml`). Autowire + autoconfigure DI.
   Testing: PHPUnit 11.5 (Unit/Integration/Functional layers) with DAMA DoctrineTestBundle
-  (SQLite in-memory). Playwright 1.60 for E2E. CI: GitHub Actions.
+  (SQLite file /tmp/url-shortener-test.sqlite). Playwright 1.60 for E2E. CI: GitHub Actions.
   Style: PHP strict_types=1 everywhere. Constructor injection with PHP 8 promoted
   properties. Hexagonal/DDD-lite package structure (Domain/Entity mapping).
   PHPUnit failOnDeprecation/Notice/Warning enabled.
@@ -24,7 +24,7 @@ testing:
       - Integration (tests/Integration)
       - Functional (tests/Functional)
     isolation: DAMA DoctrineTestBundle (transactional rollback)
-    database: SQLite :memory: (test) / PostgreSQL 16 (prod)
+    database: SQLite file /tmp/url-shortener-test.sqlite (test) / PostgreSQL 16 (prod)
   frontend:
     runner: Playwright
     version: "1.60"
