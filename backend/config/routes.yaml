@@ -1,0 +1,16 @@
+api_links_create:
+    path: /api/links
+    controller: App\Controller\LinkController::create
+    methods: POST
+
+api_links_list:
+    path: /api/links
+    controller: App\Controller\LinkController::list
+    methods: GET
+
+link_redirect:
+    path: /{slug}
+    controller: App\Controller\LinkRedirectController::redirect
+    methods: GET
+    requirements:
+        slug: '[a-zA-Z0-9_-]+'
