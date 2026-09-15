@@ -14,9 +14,11 @@
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
+        <server name="KERNEL_CLASS" value="App\Kernel" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
-        <env name="DATABASE_URL" value="sqlite:///:memory:" />
+        <env name="DATABASE_URL" value="sqlite:////tmp/url-shortener-test.sqlite" force="true" />
+        <env name="DEFAULT_URI" value="http://localhost:8080" force="true" />
     </php>
 
     <testsuites>
