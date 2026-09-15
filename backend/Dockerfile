@@ -1,5 +1,7 @@
 FROM php:8.4-fpm-alpine
 
+ARG AMQP_VERSION=2.2.0
+
 RUN apk add --no-cache \
     git \
     unzip \
@@ -10,12 +12,23 @@ RUN apk add --no-cache \
     rabbitmq-c \
     rabbitmq-c-dev \
     libxml2-dev \
+    sqlite-libs \
+    sqlite-dev \
     $PHPIZE_DEPS \
     postgresql-dev \
-    && pecl install amqp \
+    && mkdir -p /tmp/amqp \
+    && curl -fsSL "https://pecl.php.net/get/amqp-${AMQP_VERSION}.tgz" \
+        | tar -xz -C /tmp/amqp --strip-components=1 \
+    && cd /tmp/amqp \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
     && docker-php-ext-enable amqp \
-    && docker-php-ext-install dom xml xmlwriter pdo pdo_pgsql opcache \
-    && apk del $PHPIZE_DEPS postgresql-dev rabbitmq-c-dev libxml2-dev
+    && cd / \
+    && rm -rf /tmp/amqp \
+    && docker-php-ext-install -j"$(nproc)" dom xml xmlwriter pdo pdo_pgsql pdo_sqlite opcache \
+    && apk del $PHPIZE_DEPS postgresql-dev rabbitmq-c-dev libxml2-dev sqlite-dev
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
