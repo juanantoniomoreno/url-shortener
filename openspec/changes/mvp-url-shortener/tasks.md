@@ -33,6 +33,8 @@ The estimate includes a Doctrine entity and migration, API controllers and route
 
 ## Phase 1 — Domain and HTTP API (suggested PR 1)
 
+> **Phase 1 closure status:** Formally closed as of 2026-09-16. All GREEN, RED, TRIANGULATE, and REFACTOR tasks for PR1a/PR1b/PR1c are complete and verified. No implementation exists for Phase 2 or Phase 3; Phase 2 is the next workstream.
+
 ### RED — Domain behavior
 
 - [x] Add `backend/tests/Unit/Service/SlugGeneratorTest.php` covering seven-character alphanumeric output, reserved names, collision retry, and the ten-attempt exhaustion failure. Use a deterministic candidate seam so tests do not depend on random chance. <!-- sdd-owner: implementation -->
@@ -60,12 +62,12 @@ The estimate includes a Doctrine entity and migration, API controllers and route
 
 ### TRIANGULATE — Backend API evidence
 
-- [ ] Run `cd backend && php vendor/bin/phpunit` with the project test configuration and record evidence for unit, integration, and functional suites. <!-- sdd-owner: implementation -->
-- [ ] Run the Symfony route and schema checks in the project runtime, confirm the migration applies cleanly, and verify that the catch-all redirect route does not shadow the API endpoints. <!-- sdd-owner: implementation -->
+- [x] Run `cd backend && php vendor/bin/phpunit` with the project test configuration and record evidence for unit, integration, and functional suites. Evidence: Docker PHP 8.4.24, PHPUnit 31/31 with 121 assertions. <!-- sdd-owner: implementation -->
+- [x] Run the Symfony route and schema checks in the project runtime, confirm the migration applies cleanly, and verify that the catch-all redirect route does not shadow the API endpoints. Evidence: routes, Doctrine mapping/schema, migration Version20260909120000, container lint, and schema checks pass. <!-- sdd-owner: implementation -->
 
 ### REFACTOR — Domain/API clarity
 
-- [ ] Refactor only after tests pass: keep controller mapping and validation readable, preserve strict types and promoted constructor injection, and remove duplicated expiration/serialization logic. <!-- sdd-owner: implementation -->
+- [x] Refactor only after tests pass: keep controller mapping and validation readable, preserve strict types and promoted constructor injection, and remove duplicated expiration/serialization logic. Review conclusion: no additional refactor was required; the implementation is clear and free of duplicated expiration/serialization logic. <!-- sdd-owner: implementation -->
 
 ## Phase 2 — Asynchronous Tracking and Worker (suggested PR 2)
 

@@ -2,13 +2,13 @@
 
 ## Current status
 
-Phase 1 / PR1 is implemented through the HTTP API slice. The user approved re-slicing instead of accepting a review-budget size exception:
+Phase 1 / PR1 is formally closed as of 2026-09-16. The user approved re-slicing instead of accepting a review-budget size exception, and the approved review slices were delivered and verified:
 
 - PR1a — domain persistence: entity, repository, and tests.
 - PR1b — domain services: slug generation, expiration policy, and tests.
 - PR1c — HTTP API: migration, routes, controller, and functional tests.
 
-Phase 2 (Messenger/worker) and Phase 3 (frontend/dashboard) have not started.
+Phase 2 (Messenger/worker) and Phase 3 (frontend/dashboard) have not started. Phase 2 is the next workstream.
 
 ## Completed implementation tasks
 
@@ -26,19 +26,25 @@ The following Phase 1 implementation and contract-test tasks are complete in the
 - PHP syntax checks pass for all new Phase 1 PHP source and test files.
 - YAML parsing of `backend/config/routes.yaml` passes.
 - `docker compose config --quiet` passes.
-- Docker PHP 8.4.25 image builds successfully and includes the required database/XML/AMQP extensions.
-- Symfony route debug, container lint, Doctrine mapping validation, migration execution, and post-migration schema validation pass.
+- Docker PHP 8.4.24 runtime includes the required database/XML/AMQP extensions.
+- Symfony route debug, container lint, Doctrine mapping validation, migration Version20260909120000 execution, and post-migration schema validation pass.
 - Initial PHPUnit execution exposed a test-infrastructure defect: DAMA's static transaction conflicted with `SchemaTool::createSchema()` in `DatabaseSchemaTestCase::setUpBeforeClass()`.
 - `DatabaseSchemaTestCase` now temporarily disables DAMA static connections during idempotent schema drop/create and restores them for tests.
-- PHPUnit passes in Docker: Integration 5/5 (9 assertions), Functional 17/17 (102 assertions), full suite 31/31 (122 assertions). Two consecutive full-suite runs also pass.
+- PHPUnit passes in Docker: Integration 5/5 (9 assertions), Functional 17/17 (102 assertions), full suite 31/31 (121 assertions). Two consecutive full-suite runs also pass.
+  *Note: an earlier evidence entry recorded 122 assertions; the closure entry is normalized to the latest observed result of 121 assertions.*
 - Test configuration is aligned on `sqlite:////tmp/url-shortener-test.sqlite`; CI runs migrations and `doctrine:schema:validate --skip-sync` before PHPUnit instead of the redundant `doctrine:schema:create` step.
 - PR1c is vertically split for delivery into schema migration, create/list API (including shared route declarations), and redirect API. The create/list unit is 357 added lines and the redirect unit is 102 added lines; shared functional helpers live in the test-harness unit.
+- Final commit `ea081b2` is aligned with `origin/main`. Phase 1 / PR1 closure documentation reflects this pushed state.
 
-## Remaining Phase 1 tasks
+## Phase 1 closure
 
-- Perform the post-test refactor pass, if evidence identifies duplication or clarity issues.
-- Recalculate the review forecast and keep the approved PR1a/PR1b/PR1c boundaries for delivery.
+- Phase 1 / PR1 is formally closed as of 2026-09-16.
+- Closure verification: Docker PHP 8.4.24, PHPUnit 31/31 with 121 assertions, routes/schema/migration/container checks passing.
+- Final review-slice boundaries: PR1a domain persistence, PR1b domain services, PR1c schema migration, PR1c create/list API, PR1c redirect API. Shared functional helpers remain in the test-harness unit.
+- Pushed commit state: `ea081b2`, aligned with `origin/main`.
+- No additional REFACTOR work was required; the post-test review found no duplicated expiration/serialization logic or clarity issues.
+- No Phase 2 or Phase 3 implementation exists; Phase 2 is the next workstream.
 
 ## Scope guard
 
-No Messenger message/handler, transport routing, worker service, frontend API wrapper, dashboard, or browser-flow implementation was added.
+No Messenger message/handler, transport routing, worker service, frontend API wrapper, dashboard, or browser-flow implementation was added. Local generated and unrelated worktree artifacts remain outside scope.
