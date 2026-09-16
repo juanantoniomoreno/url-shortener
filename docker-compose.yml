@@ -48,6 +48,27 @@ services:
         condition: service_healthy
     environment:
       - APP_ENV=dev
+      - DEFAULT_URI=http://localhost:8080
+      - MESSENGER_TRANSPORT_DSN=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/%2f/async
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@postgres:5432/${POSTGRES_DB:-shortener}?serverVersion=16&charset=utf8
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: urls_worker
+    volumes:
+      - ./backend:/var/www/html
+    entrypoint: ["/var/www/html/docker-entrypoint.sh"]
+    command: ["php", "bin/console", "messenger:consume", "async", "--time-limit=3600", "--memory-limit=256M"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - APP_ENV=dev
+      - DEFAULT_URI=http://localhost:8080
       - MESSENGER_TRANSPORT_DSN=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/%2f/async
       - DATABASE_URL=postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@postgres:5432/${POSTGRES_DB:-shortener}?serverVersion=16&charset=utf8
 

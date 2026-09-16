@@ -5,11 +5,54 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Controller;
 
 use App\Domain\Entity\Link;
+use App\Message\LinkVisited;
 use App\Service\SlugGenerator;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * Test double that records every dispatched message instead of routing it.
+ */
+final class RecordingMessageBusSpy implements MessageBusInterface
+{
+    /** @var list<object> */
+    public array $dispatched = [];
+
+    public function dispatch(object $message, array $stamps = []): Envelope
+    {
+        $this->dispatched[] = $message;
+
+        return new Envelope($message, $stamps);
+    }
+}
+
+/**
+ * Test double that simulates an unreachable broker on every dispatch attempt.
+ */
+final class FailingMessageBusSpy implements MessageBusInterface
+{
+    public int $dispatchAttempts = 0;
+
+    public function dispatch(object $message, array $stamps = []): Envelope
+    {
+        ++$this->dispatchAttempts;
+
+        throw new \RuntimeException('The message broker is unreachable.');
+    }
+}
+
+/**
+ * Functional coverage for the create/list API and the dispatch side of redirects.
+ */
 final class LinkControllerTest extends LinkApiTestCase
 {
-    public function test_create_link_with_generated_slug_returns_201_and_documented_fields(): void
+    private function overrideMessageBus(MessageBusInterface $bus): void
+    {
+        self::getContainer()->set('messenger.bus.default', $bus);
+        self::getContainer()->set('message_bus', $bus);
+    }
+
+public function test_create_link_with_generated_slug_returns_201_and_documented_fields(): void
     {
         $client = $this->jsonBrowser();
         $client->request('POST', '/api/links', [], [], [], json_encode(['url' => 'https://example.com/article'], JSON_THROW_ON_ERROR));
@@ -177,5 +220,88 @@ final class LinkControllerTest extends LinkApiTestCase
         $client->request('GET', '/api/links');
 
         self::assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function test_active_redirect_dispatches_one_link_visited_message(): void
+    {
+        $this->persistLinkForTracking('tracked', 'https://example.com/tracked');
+
+        $bus = new RecordingMessageBusSpy();
+        $client = $this->jsonBrowser();
+        $client->disableReboot();
+        $this->overrideMessageBus($bus);
+
+        $client->request('GET', '/tracked');
+
+        $response = $client->getResponse();
+        self::assertSame(302, $response->getStatusCode());
+
+        self::assertCount(1, $bus->dispatched);
+        self::assertInstanceOf(LinkVisited::class, $bus->dispatched[0]);
+        self::assertSame('tracked', $bus->dispatched[0]->getSlug());
+    }
+
+    public function test_unknown_slug_redirect_does_not_dispatch_link_visited(): void
+    {
+        $bus = new RecordingMessageBusSpy();
+        $client = $this->jsonBrowser();
+        $client->disableReboot();
+        $this->overrideMessageBus($bus);
+
+        $client->request('GET', '/unknown1');
+
+        self::assertSame(404, $client->getResponse()->getStatusCode());
+        self::assertSame([], $bus->dispatched);
+    }
+
+    public function test_expired_link_redirect_does_not_dispatch_link_visited(): void
+    {
+        $entityManager = $this->service('doctrine.orm.default_entity_manager');
+        $link = new Link('expired2', 'https://example.com/expired');
+        $entityManager->persist($link);
+        $entityManager->flush();
+
+        $reflection = new \ReflectionProperty(Link::class, 'updatedAt');
+        $reflection->setValue($link, new \DateTimeImmutable('-31 days'));
+        $entityManager->flush();
+
+        $bus = new RecordingMessageBusSpy();
+        $client = $this->jsonBrowser();
+        $client->disableReboot();
+        $this->overrideMessageBus($bus);
+
+        $client->request('GET', '/expired2');
+
+        self::assertSame(410, $client->getResponse()->getStatusCode());
+        self::assertSame([], $bus->dispatched);
+    }
+
+    public function test_broker_publish_failure_is_logged_and_does_not_break_the_redirect(): void
+    {
+        $this->persistLinkForTracking('resilient', 'https://example.com/resilient');
+
+        $bus = new FailingMessageBusSpy();
+        $client = $this->jsonBrowser();
+        $client->disableReboot();
+        $this->overrideMessageBus($bus);
+
+        $testHandler = new \Monolog\Handler\TestHandler();
+        $logger = self::getContainer()->get('monolog.logger');
+        $logger->pushHandler($testHandler);
+
+        $client->request('GET', '/resilient');
+
+        $response = $client->getResponse();
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame('https://example.com/resilient', $response->headers->get('Location'));
+        self::assertSame(1, $bus->dispatchAttempts);
+        self::assertTrue($testHandler->hasErrorThatContains('click tracking'));
+    }
+
+    private function persistLinkForTracking(string $slug, string $url): void
+    {
+        $entityManager = $this->service('doctrine.orm.default_entity_manager');
+        $entityManager->persist(new Link($slug, $url));
+        $entityManager->flush();
     }
 }

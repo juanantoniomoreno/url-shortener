@@ -23,3 +23,5 @@ frontend/playwright-report/
 
 # Agent tool registry (machine-generated, environment-specific)
 .atl/
+.codegraph/
+.pi/
