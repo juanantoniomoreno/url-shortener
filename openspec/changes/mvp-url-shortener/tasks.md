@@ -28,13 +28,13 @@ Decision needed before apply: Resolved — re-slice Phase 1 into PR1a/PR1b/PR1c
 Chained PRs recommended: Yes
 Chain strategy: stacked-to-main
 400-line budget risk: High
-Phase 2 delivery decision: Resolved — the maintainer explicitly accepted `size:exception`, so Phase 2 ships as a single PR despite the 400-line budget. Forecast for the Phase 2 slice is 400–480 changed lines. The cached `stacked-to-main` chain strategy is not applied to this slice. The `size:exception` acceptance applies to Phase 2 only and does not pre-authorize Phase 3.
+Phase 2 delivery decision: Resolved — the maintainer explicitly accepted `size:exception`, so Phase 2 shipped as a single PR despite the 400-line budget. Forecast for the Phase 2 slice was 400–480 changed lines; actual delivery was 379 code+test lines. The cached `stacked-to-main` chain strategy was not applied to this slice. Delivered as PR #1, merged into `main` in merge commit `872c3e1`. The `size:exception` acceptance applied to Phase 2 only and does not pre-authorize Phase 3.
 
 The estimate includes a Doctrine entity and migration, API controllers and routes, Messenger message and handler, worker infrastructure, frontend state and API integration, and unit/integration/functional/E2E tests. The user approved smaller Phase 1 review units rather than accepting a `size:exception`; Phase 2 and Phase 3 remain separate delivery slices.
 
 ## Phase 1 — Domain and HTTP API (suggested PR 1)
 
-> **Phase 1 closure status:** Formally closed as of 2026-09-16. All GREEN, RED, TRIANGULATE, and REFACTOR tasks for PR1a/PR1b/PR1c are complete and verified. No implementation exists for Phase 2 or Phase 3; Phase 2 is the next workstream.
+> **Phase 1 closure status:** Formally closed as of 2026-09-16. All GREEN, RED, TRIANGULATE, and REFACTOR tasks for PR1a/PR1b/PR1c are complete and verified. At that closure no Phase 2 or Phase 3 implementation existed. Phase 2 has since been implemented, verified, and delivered as PR #1 (merge commit `872c3e1`); Phase 3 is the next workstream.
 
 ### RED — Domain behavior
 
@@ -71,6 +71,8 @@ The estimate includes a Doctrine entity and migration, API controllers and route
 - [x] Refactor only after tests pass: keep controller mapping and validation readable, preserve strict types and promoted constructor injection, and remove duplicated expiration/serialization logic. Review conclusion: no additional refactor was required; the implementation is clear and free of duplicated expiration/serialization logic. <!-- sdd-owner: implementation -->
 
 ## Phase 2 — Asynchronous Tracking and Worker (suggested PR 2)
+
+> **Phase 2 delivery status:** Implemented, verified, and delivered as PR #1 (merge commit `872c3e1`). All 12 Phase 2 tasks below are complete. Phase 3 is the next workstream.
 
 ### RED — Message and handler behavior
 

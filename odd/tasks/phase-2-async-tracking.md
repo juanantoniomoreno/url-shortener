@@ -6,7 +6,7 @@ Implement Phase 2 of the `mvp-url-shortener` SDD change: publish `LinkVisited` f
 
 ## Source of truth
 
-The authoritative task list is `openspec/changes/mvp-url-shortener/tasks.md`, Phase 2 section (12 pending tasks). Specs live in `openspec/changes/mvp-url-shortener/specs/click-tracking/spec.md`; the design section is "Asynchronous Click Tracking" plus "Docker Worker" in `design.md`. This file is a session-level resume pointer, not a second task authority.
+The authoritative task list is `openspec/changes/mvp-url-shortener/tasks.md`, Phase 2 section (12 tasks, all complete and delivered). Specs live in `openspec/changes/mvp-url-shortener/specs/click-tracking/spec.md`; the design section is "Asynchronous Click Tracking" plus "Docker Worker" in `design.md`. This file is a session-level resume pointer, not a second task authority.
 
 ## Scope
 
@@ -30,7 +30,7 @@ The authoritative task list is `openspec/changes/mvp-url-shortener/tasks.md`, Ph
 ## Session decisions
 
 - Execution mode: interactive. Delivery strategy: `exception-ok` (maintainer accepted `size:exception` for the 400–480 line Phase 2 slice).
-- Chain strategy cached as `stacked-to-main`, unused because Phase 2 ships as one PR.
+- Chain strategy cached as `stacked-to-main`, unused because Phase 2 shipped as one PR.
 - Artifact store: hybrid — OpenSpec files plus an Engram mirror under `sdd/mvp-url-shortener/*`.
 - Strict TDD is active; runner is `php vendor/bin/phpunit` executed in the Docker PHP 8.4 runtime.
 
@@ -51,3 +51,6 @@ The authoritative task list is `openspec/changes/mvp-url-shortener/tasks.md`, Ph
 - Live stack evidence: redirect `302`, worker increments clicks `0→1→2` with `updatedAt` refreshed.
 - Phase 3 remains untouched: 9 unchecked tasks in `tasks.md`.
 - Scope addition beyond the Phase 2 task list: `DEFAULT_URI=http://localhost:8080` added to the `php` service as well as `worker`, fixing a latent Phase 1 live-stack gap (`EnvNotFoundException` on the first real redirect).
+- Delivered as PR #1 (`feat/async-click-tracking` → `main`), merged in merge commit `872c3e1`; source branch deleted. 13 files, +690/−16, across commits `77ff56a`, `24aab70`, `2d23e99`, `38398ae`, `c09953a`.
+- The merged tree is byte-identical to the verified commit `c09953a`, so the verification above applies unchanged to `main`.
+- Phase 3 remains the archive blocker; the Phase 2 `size:exception` does not pre-authorize it.

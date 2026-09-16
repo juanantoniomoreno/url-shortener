@@ -8,7 +8,7 @@ Phase 1 / PR1 is formally closed as of 2026-09-16. The user approved re-slicing 
 - PR1b — domain services: slug generation, expiration policy, and tests.
 - PR1c — HTTP API: migration, routes, controller, and functional tests.
 
-Phase 2 (Messenger/worker) is implemented and complete: all 12 Phase 2 tasks are checked off in `tasks.md`, and the Phase 2 slice was independently verified — `openspec/changes/mvp-url-shortener/verify-report.md` exists. The Phase 2 delivery decision was a maintainer-accepted `size:exception`, shipping Phase 2 as a single PR. Phase 3 (frontend `api.js`, dashboard state in `App.jsx`, Playwright E2E) has not started; its 9 tasks remain unchecked, so archive is not ready for the full change.
+Phase 2 (Messenger/worker) is implemented, verified, and delivered. All 12 Phase 2 tasks are checked off in `tasks.md`, the Phase 2 slice was independently verified (`openspec/changes/mvp-url-shortener/verify-report.md`), and it was delivered under a maintainer-accepted `size:exception` as a single pull request: PR #1, merged into `main` in merge commit `872c3e1`, with the source branch deleted after merge. Phase 3 (frontend `api.js`, dashboard state in `App.jsx`, Playwright E2E) has not started; its 9 tasks remain unchecked, so archive is not ready for the full change.
 
 ## Completed implementation tasks
 
@@ -94,11 +94,19 @@ REFACTOR — reliability boundaries:
 
 ### Phase 2 changed-line summary
 
-Modified: `messenger.yaml` (+1), `LinkRedirectController.php` (+24), `LinkControllerTest.php` (+128), `docker-compose.yml` (+21). New: `LinkVisited.php` (21), `LinkVisitedHandler.php` (44), `LinkVisitedHandlerTest.php` (82), `LinkVisitedRoutingTest.php` (59). Total ≈ 380 changed lines (code+tests), inside the approved `size:exception` forecast of 400–480 and near the 400-line budget. Suggested single-PR work-unit commits: (1) message + handler + routing + tests; (2) controller dispatch wiring + functional tests; (3) worker service + compose validation.
+Modified: `messenger.yaml` (+1), `LinkRedirectController.php` (+24), `LinkControllerTest.php` (+128), `docker-compose.yml` (+21). New: `LinkVisited.php` (21), `LinkVisitedHandler.php` (44), `LinkVisitedHandlerTest.php` (82), `LinkVisitedRoutingTest.php` (59). Total ≈ 380 changed lines (code+tests), inside the approved `size:exception` forecast of 400–480 and near the 400-line budget. Delivered as PR #1 in five commits: `77ff56a` message + handler + `async` routing + their tests, `24aab70` controller dispatch wiring + functional tests, `2d23e99` worker service + the `DEFAULT_URI` fix, `38398ae` OpenSpec artifacts and session tracker, `c09953a` local-artifact ignores.
 
 ### Phase 2 status
 
 All 12 Phase 2 tasks are complete, and the Phase 2 slice was independently verified — `openspec/changes/mvp-url-shortener/verify-report.md` exists. Phase 3 (frontend `api.js`, dashboard state in `App.jsx`, Playwright E2E) has not been started and remains explicitly out of scope for this run.
+
+### Phase 2 delivery record
+
+- Delivered as PR #1 (`feat/async-click-tracking` → `main`), merged with merge commit `872c3e1`. The source branch was deleted after merge.
+- Merge commit, not squash: the five commits keep their original SHAs in `main`'s history and `c09953a` remains an ancestor of `872c3e1`.
+- 13 files, +690/−16. The merged tree was confirmed byte-identical to the verified commit `c09953a` (`git diff c09953a 872c3e1` is empty), so the verification evidence above applies unchanged to `main`.
+- CI: the `backend` job already declared `amqp`, so the new suite needed no workflow change; the `docker` job now builds six services and pays a cold AMQP compile on the first run.
+- The change is NOT archived. Phase 3's 9 unchecked tasks remain the archive blocker, and the Phase 2 `size:exception` does not pre-authorize them.
 
 ## Phase 1 closure
 
