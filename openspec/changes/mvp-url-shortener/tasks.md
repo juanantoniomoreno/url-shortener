@@ -28,6 +28,7 @@ Decision needed before apply: Resolved — re-slice Phase 1 into PR1a/PR1b/PR1c
 Chained PRs recommended: Yes
 Chain strategy: stacked-to-main
 400-line budget risk: High
+Phase 2 delivery decision: Resolved — the maintainer explicitly accepted `size:exception`, so Phase 2 ships as a single PR despite the 400-line budget. Forecast for the Phase 2 slice is 400–480 changed lines. The cached `stacked-to-main` chain strategy is not applied to this slice. The `size:exception` acceptance applies to Phase 2 only and does not pre-authorize Phase 3.
 
 The estimate includes a Doctrine entity and migration, API controllers and routes, Messenger message and handler, worker infrastructure, frontend state and API integration, and unit/integration/functional/E2E tests. The user approved smaller Phase 1 review units rather than accepting a `size:exception`; Phase 2 and Phase 3 remain separate delivery slices.
 
@@ -73,30 +74,30 @@ The estimate includes a Doctrine entity and migration, API controllers and route
 
 ### RED — Message and handler behavior
 
-- [ ] Add `backend/tests/Unit/MessageHandler/LinkVisitedHandlerTest.php` covering click increment, `updatedAt` refresh, and no-op handling for a missing link. <!-- sdd-owner: implementation -->
-- [ ] Extend `backend/tests/Functional/Controller/LinkControllerTest.php` to assert that active redirects dispatch `LinkVisited`, rejected redirects do not dispatch it, and broker publish failures do not break the `302` response. <!-- sdd-owner: implementation -->
-- [ ] Add an integration assertion that `LinkVisited` is routed to the `async` transport. <!-- sdd-owner: implementation -->
+- [x] Add `backend/tests/Unit/MessageHandler/LinkVisitedHandlerTest.php` covering click increment, `updatedAt` refresh, and no-op handling for a missing link. <!-- sdd-owner: implementation -->
+- [x] Extend `backend/tests/Functional/Controller/LinkControllerTest.php` to assert that active redirects dispatch `LinkVisited`, rejected redirects do not dispatch it, and broker publish failures do not break the `302` response. <!-- sdd-owner: implementation -->
+- [x] Add an integration assertion that `LinkVisited` is routed to the `async` transport. <!-- sdd-owner: implementation -->
 
 ### GREEN — Messenger implementation
 
-- [ ] Implement immutable `backend/src/Message/LinkVisited.php` carrying the link slug. <!-- sdd-owner: implementation -->
-- [ ] Implement `backend/src/MessageHandler/LinkVisitedHandler.php` to increment clicks, refresh `updatedAt`, flush changes, and safely ignore missing links. <!-- sdd-owner: implementation -->
-- [ ] Update `backend/config/packages/messenger.yaml` to route `App\\Message\\LinkVisited` to `async` while preserving existing transports. <!-- sdd-owner: implementation -->
-- [ ] Wrap asynchronous publication in the controller with logging and non-blocking transport-failure handling. <!-- sdd-owner: implementation -->
+- [x] Implement immutable `backend/src/Message/LinkVisited.php` carrying the link slug. <!-- sdd-owner: implementation -->
+- [x] Implement `backend/src/MessageHandler/LinkVisitedHandler.php` to increment clicks, refresh `updatedAt`, flush changes, and safely ignore missing links. <!-- sdd-owner: implementation -->
+- [x] Update `backend/config/packages/messenger.yaml` to route `App\\Message\\LinkVisited` to `async` while preserving existing transports. <!-- sdd-owner: implementation -->
+- [x] Wrap asynchronous publication in the controller with logging and non-blocking transport-failure handling. <!-- sdd-owner: implementation -->
 
 ### GREEN — Worker infrastructure
 
-- [ ] Add the `worker` service to `docker-compose.yml` with the PHP image, health-checked PostgreSQL/RabbitMQ dependencies, matching environment, and bounded Messenger consumer command. <!-- sdd-owner: implementation -->
-- [ ] Confirm `backend/docker-entrypoint.sh` runs migrations only for `php-fpm` and leaves the worker command untouched. <!-- sdd-owner: implementation -->
+- [x] Add the `worker` service to `docker-compose.yml` with the PHP image, health-checked PostgreSQL/RabbitMQ dependencies, matching environment, and bounded Messenger consumer command. <!-- sdd-owner: implementation -->
+- [x] Confirm `backend/docker-entrypoint.sh` runs migrations only for `php-fpm` and leaves the worker command untouched. <!-- sdd-owner: implementation -->
 
 ### TRIANGULATE — Async evidence
 
-- [ ] Run the handler and functional PHPUnit tests, then validate `docker compose config --quiet` with the worker service present. <!-- sdd-owner: implementation -->
-- [ ] Start the required Docker services in a disposable local environment, create a link, follow its redirect, and verify that the worker increments clicks asynchronously. <!-- sdd-owner: implementation -->
+- [x] Run the handler and functional PHPUnit tests, then validate `docker compose config --quiet` with the worker service present. <!-- sdd-owner: implementation -->
+- [x] Start the required Docker services in a disposable local environment, create a link, follow its redirect, and verify that the worker increments clicks asynchronously. <!-- sdd-owner: implementation -->
 
 ### REFACTOR — Reliability boundaries
 
-- [ ] Refactor logging and message handling for clear failure diagnostics without adding event-level deduplication or out-of-scope retry infrastructure. <!-- sdd-owner: implementation -->
+- [x] Refactor logging and message handling for clear failure diagnostics without adding event-level deduplication or out-of-scope retry infrastructure. <!-- sdd-owner: implementation -->
 
 ## Phase 3 — Dashboard and Browser Flow (suggested PR 3)
 
