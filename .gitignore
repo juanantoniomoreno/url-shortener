@@ -1,7 +1,10 @@
-# Environment files (real secrets, never commit; .env.example IS tracked)
+# Environment files. Symfony convention: `backend/.env` holds non-secret defaults and
+# IS committed, because SymfonyRuntime::bootEnv() cannot boot without it. Real secrets
+# live in `.env.local` and `.env.*.local`, which are never committed.
 .env
 .env.local
 .env.*.local
+!/backend/.env
 
 # TLS certificates (generate locally, never commit)
 certs/
