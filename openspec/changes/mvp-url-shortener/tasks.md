@@ -30,6 +30,10 @@ Chain strategy: stacked-to-main
 400-line budget risk: High
 Phase 2 delivery decision: Resolved — the maintainer explicitly accepted `size:exception`, so Phase 2 shipped as a single PR despite the 400-line budget. Forecast for the Phase 2 slice was 400–480 changed lines; actual delivery was 379 code+test lines. The cached `stacked-to-main` chain strategy was not applied to this slice. Delivered as PR #1, merged into `main` in merge commit `872c3e1`. The `size:exception` acceptance applied to Phase 2 only and does not pre-authorize Phase 3.
 
+Phase 3 delivery decision: Resolved (2026-09-18) — the maintainer explicitly accepted `size:exception` for Phase 3, shipping it as a single PR. Slice forecast was ~425 code+test lines (dashboard read path ~210, create flow ~165, expiration display/refactor/manual evidence ~50); chained delivery as PR3a/PR3b/PR3c was offered and declined. The `size:exception` acceptance applies to Phase 3 only and does not pre-authorize any later change.
+Phase 3 frontend test seam: Resolved (2026-09-18) — Playwright with `page.route` request fixtures only, covering loading, successful creation, and failed creation states. No Vitest/RTL and no new frontend devDependency, keeping the declared `frontend.runner: Playwright` in `openspec/config.yaml` authoritative.
+Phase 3 scope finding: the `dashboard` spec's four requirements are already satisfied by the Phase 1 backend (`GET /api/links`, `POST /api/links`, `isExpired`, and `{error: {code, message}}` responses), so Phase 3 changes frontend code and frontend tests only — no PHP, migration, Messenger, or compose change.
+
 The estimate includes a Doctrine entity and migration, API controllers and routes, Messenger message and handler, worker infrastructure, frontend state and API integration, and unit/integration/functional/E2E tests. The user approved smaller Phase 1 review units rather than accepting a `size:exception`; Phase 2 and Phase 3 remain separate delivery slices.
 
 ## Phase 1 — Domain and HTTP API (suggested PR 1)
@@ -102,6 +106,8 @@ The estimate includes a Doctrine entity and migration, API controllers and route
 - [x] Refactor logging and message handling for clear failure diagnostics without adding event-level deduplication or out-of-scope retry infrastructure. <!-- sdd-owner: implementation -->
 
 ## Phase 3 — Dashboard and Browser Flow (suggested PR 3)
+
+> **Phase 3 plan status:** Planned as of 2026-09-18 and authorized to start as a single PR under an accepted `size:exception` (see the Review Workload Forecast). The plan artifact is `odd/tasks/phase-3-dashboard.md`. All 9 tasks below remain unchecked; Phase 3 is still the archive blocker for the full change.
 
 ### RED — Frontend behavior
 
