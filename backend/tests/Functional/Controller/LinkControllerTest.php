@@ -52,6 +52,72 @@ final class LinkControllerTest extends LinkApiTestCase
         self::getContainer()->set('message_bus', $bus);
     }
 
+    public function test_short_url_is_built_from_configured_shortener_base_url_not_the_request_host(): void
+    {
+        $client = $this->jsonBrowser();
+        $client->request('POST', '/api/links', [], [], ['HTTP_HOST' => 'evil.example.com:9999'], json_encode(['url' => 'https://example.com/host-check'], JSON_THROW_ON_ERROR));
+
+        $response = $client->getResponse();
+        self::assertSame(201, $response->getStatusCode());
+
+        $payload = $this->decodeResponse($response->getContent());
+        self::assertSame('https://short.test/' . $payload['slug'], $payload['shortUrl']);
+    }
+
+    public function test_returned_short_url_resolves_through_the_link_redirect_route(): void
+    {
+        $client = $this->jsonBrowser();
+        $client->request('POST', '/api/links', [], [], [], json_encode([
+            'url' => 'https://example.com/followed',
+            'slug' => 'followme1',
+        ], JSON_THROW_ON_ERROR));
+        self::assertSame(201, $client->getResponse()->getStatusCode());
+
+        $shortUrl = $this->decodeResponse($client->getResponse()->getContent())['shortUrl'];
+
+        // The expected path is derived from the link_redirect route definition
+        // in the test container, not from the controller's composition, so a
+        // divergence between routes.yaml and the generated shortUrl fails here.
+        $routePath = self::getContainer()->get('router')->getRouteCollection()->get('link_redirect')->getPath();
+        $expectedPath = str_replace('{slug}', 'followme1', $routePath);
+
+        self::assertSame($expectedPath, parse_url($shortUrl, PHP_URL_PATH));
+
+        $client->request('GET', $expectedPath);
+
+        $response = $client->getResponse();
+        self::assertSame(302, $response->getStatusCode());
+        self::assertSame('https://example.com/followed', $response->headers->get('Location'));
+    }
+
+    public function test_returned_short_url_of_an_expired_link_resolves_through_the_link_redirect_route(): void
+    {
+        $client = $this->jsonBrowser();
+        $client->request('POST', '/api/links', [], [], [], json_encode([
+            'url' => 'https://example.com/expired-follow',
+            'slug' => 'followgone1',
+        ], JSON_THROW_ON_ERROR));
+        self::assertSame(201, $client->getResponse()->getStatusCode());
+
+        $shortUrl = $this->decodeResponse($client->getResponse()->getContent())['shortUrl'];
+
+        $entityManager = $this->service('doctrine.orm.default_entity_manager');
+        $link = $entityManager->getRepository(Link::class)->findOneBy(['slug' => 'followgone1']);
+        self::assertNotNull($link);
+        $reflection = new \ReflectionProperty(Link::class, 'updatedAt');
+        $reflection->setValue($link, new \DateTimeImmutable('-31 days'));
+        $entityManager->flush();
+
+        $routePath = self::getContainer()->get('router')->getRouteCollection()->get('link_redirect')->getPath();
+        $expectedPath = str_replace('{slug}', 'followgone1', $routePath);
+
+        self::assertSame($expectedPath, parse_url($shortUrl, PHP_URL_PATH));
+
+        $client->request('GET', $expectedPath);
+
+        self::assertSame(410, $client->getResponse()->getStatusCode());
+    }
+
 public function test_create_link_with_generated_slug_returns_201_and_documented_fields(): void
     {
         $client = $this->jsonBrowser();

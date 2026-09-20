@@ -19,6 +19,7 @@
         <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <env name="DATABASE_URL" value="sqlite:////tmp/url-shortener-test.sqlite" force="true" />
         <env name="DEFAULT_URI" value="http://localhost:8080" force="true" />
+        <env name="SHORTENER_BASE_URL" value="https://short.test" force="true" />
     </php>
 
     <testsuites>
