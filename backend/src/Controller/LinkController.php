@@ -13,7 +13,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class LinkController
 {
@@ -22,7 +21,7 @@ final class LinkController
         private readonly SlugGenerator $slugGenerator,
         private readonly EntityManagerInterface $entityManager,
         private readonly LinkExpirationPolicy $expirationPolicy,
-        private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly string $shortenerBaseUrl,
     ) {
     }
 
@@ -142,10 +141,15 @@ final class LinkController
     {
         $slug = $link->getSlug();
 
+        // The path shape is composed here by design (not routed through
+        // UrlGeneratorInterface, whose request context this decoupling avoids).
+        // It MUST stay in sync with the link_redirect route path declared in
+        // config/routes.yaml; the returned-short-url functional tests in
+        // tests/Functional/Controller/LinkControllerTest.php guard that coupling.
         return [
             'slug' => $slug,
             'url' => $link->getOriginalUrl(),
-            'shortUrl' => $this->urlGenerator->generate('link_redirect', ['slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
+            'shortUrl' => rtrim($this->shortenerBaseUrl, '/') . '/' . $slug,
             'clicks' => $link->getClicks(),
             'createdAt' => $link->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'updatedAt' => $link->getUpdatedAt()->format(\DateTimeInterface::ATOM),

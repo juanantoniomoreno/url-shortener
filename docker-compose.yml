@@ -49,6 +49,7 @@ services:
     environment:
       - APP_ENV=dev
       - DEFAULT_URI=http://localhost:8080
+      - SHORTENER_BASE_URL=http://localhost:8080
       - MESSENGER_TRANSPORT_DSN=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/%2f/async
       - DATABASE_URL=postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@postgres:5432/${POSTGRES_DB:-shortener}?serverVersion=16&charset=utf8
 
@@ -75,6 +76,7 @@ services:
     environment:
       - APP_ENV=dev
       - DEFAULT_URI=http://localhost:8080
+      - SHORTENER_BASE_URL=http://localhost:8080
       - MESSENGER_TRANSPORT_DSN=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672/%2f/async
       - DATABASE_URL=postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@postgres:5432/${POSTGRES_DB:-shortener}?serverVersion=16&charset=utf8
 

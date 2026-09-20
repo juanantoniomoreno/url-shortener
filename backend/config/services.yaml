@@ -2,6 +2,8 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            string $shortenerBaseUrl: '%env(SHORTENER_BASE_URL)%'
 
     App\:
         resource: "../src/"
