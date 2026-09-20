@@ -32,3 +32,4 @@ frontend/playwright-report/
 .atl/
 .codegraph/
 .pi/
+.odd/
