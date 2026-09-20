@@ -49,7 +49,7 @@ The React dashboard MUST provide a form that submits an original URL and optiona
 
 ### Requirement: Display expiration status
 
-The dashboard MUST distinguish active and expired links using the API's computed `isExpired` value and MUST display each link's click count and short URL.
+The dashboard MUST distinguish active and expired links using the API's computed `isExpired` value and MUST display each link's click count and short URL. The displayed short URL MUST be the API-returned `shortUrl` — an absolute URL at the configured shortener origin (`SHORTENER_BASE_URL`) that resolves through the redirect endpoint — rather than a URL derived from the dashboard's own origin or the proxied request host.
 
 #### Scenario: Show an expired link as inactive
 
@@ -57,6 +57,13 @@ The dashboard MUST distinguish active and expired links using the API's computed
 - WHEN the dashboard renders the list
 - THEN it labels the link as expired or inactive
 - AND does not present it as an active redirect
+
+#### Scenario: Displayed short URL points at the shortener origin
+
+- GIVEN the API is reached through any proxy or host
+- WHEN the dashboard renders a link's short URL
+- THEN the displayed URL is the API-returned absolute `shortUrl` at the configured shortener origin
+- AND following it resolves through the redirect endpoint instead of the dashboard SPA
 
 ### Requirement: Verify the primary user flow
 
