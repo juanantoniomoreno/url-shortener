@@ -35,6 +35,18 @@
 | `rabbitmq` | 5673/15673 | Message broker + management UI |
 | `frontend` | 3000       | React SPA via Nginx         |
 
+## Environment
+
+| Variable                  | Purpose                                                |
+| ------------------------- | ------------------------------------------------------ |
+| `SHORTENER_BASE_URL`      | Public origin used to compose every returned short URL |
+| `DATABASE_URL`            | Doctrine/PostgreSQL connection                         |
+| `MESSENGER_TRANSPORT_DSN` | AMQP transport for the `async` queue                   |
+| `APP_ENV`                 | Symfony environment (`dev` in the compose stack)       |
+| `DEFAULT_URI`             | Request context for non-HTTP contexts only             |
+
+See the `Environment Variables` section in [README.md](README.md#environment-variables) for the compose-level variables and the full semantics.
+
 ## Key Differences from event-driven-orders
 
 - No Mercure (may add later)
