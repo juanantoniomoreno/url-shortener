@@ -1,0 +1,17 @@
+# Local environment and secrets are provided by compose/deploy env vars,
+# never baked into the image.
+.env
+.env.*
+!.env.example
+
+# Host-local dependencies: the image installs its own vendor in two steps
+# (composer install before COPY, dump-autoload --optimize after), so the
+# build-context vendor must not overlay it.
+/vendor/
+
+# Local test and runtime state.
+/.phpunit.cache
+/phpunit.xml
+.atl/
+.pi/
+.codegraph/
