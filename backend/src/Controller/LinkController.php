@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Domain\Entity\Link;
 use App\Repository\LinkRepository;
 use App\Service\LinkExpirationPolicy;
+use App\Service\ShortenerBaseUrl;
 use App\Service\SlugGenerator;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,13 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class LinkController
 {
+    private readonly ShortenerBaseUrl $shortenerBaseUrl;
+
     public function __construct(
         private readonly LinkRepository $repository,
         private readonly SlugGenerator $slugGenerator,
         private readonly EntityManagerInterface $entityManager,
         private readonly LinkExpirationPolicy $expirationPolicy,
-        private readonly string $shortenerBaseUrl,
+        string $shortenerBaseUrl,
     ) {
+        $this->shortenerBaseUrl = ShortenerBaseUrl::fromString($shortenerBaseUrl);
     }
 
     public function create(Request $request): JsonResponse
@@ -149,7 +153,7 @@ final class LinkController
         return [
             'slug' => $slug,
             'url' => $link->getOriginalUrl(),
-            'shortUrl' => rtrim($this->shortenerBaseUrl, '/') . '/' . $slug,
+            'shortUrl' => $this->shortenerBaseUrl->withSlug($slug),
             'clicks' => $link->getClicks(),
             'createdAt' => $link->getCreatedAt()->format(\DateTimeInterface::ATOM),
             'updatedAt' => $link->getUpdatedAt()->format(\DateTimeInterface::ATOM),
