@@ -364,6 +364,54 @@ public function test_create_link_with_generated_slug_returns_201_and_documented_
         self::assertTrue($testHandler->hasErrorThatContains('click tracking'));
     }
 
+    public function test_malformed_shortener_base_url_fails_the_first_request_that_uses_the_controller(): void
+    {
+        $originalEnv = $_ENV['SHORTENER_BASE_URL'] ?? null;
+        $originalServer = $_SERVER['SHORTENER_BASE_URL'] ?? null;
+        $originalProcess = getenv('SHORTENER_BASE_URL');
+
+        putenv('SHORTENER_BASE_URL=ftp://short.test');
+        $_ENV['SHORTENER_BASE_URL'] = 'ftp://short.test';
+        $_SERVER['SHORTENER_BASE_URL'] = 'ftp://short.test';
+
+        self::ensureKernelShutdown();
+        self::bootKernel();
+
+        try {
+            $client = $this->jsonBrowser();
+            $client->request('POST', '/api/links', [], [], [], json_encode(['url' => 'https://example.com'], JSON_THROW_ON_ERROR));
+
+            $response = $client->getResponse();
+            self::assertSame(500, $response->getStatusCode());
+            self::assertStringContainsString('SHORTENER_BASE_URL', (string) $response->getContent());
+        } finally {
+            $this->restoreShortenerBaseUrlEnvironment($originalEnv, $originalServer, $originalProcess);
+            self::ensureKernelShutdown();
+            self::bootKernel();
+        }
+    }
+
+    private function restoreShortenerBaseUrlEnvironment(?string $envValue, ?string $serverValue, string|false $processValue): void
+    {
+        if ($envValue === null) {
+            unset($_ENV['SHORTENER_BASE_URL']);
+        } else {
+            $_ENV['SHORTENER_BASE_URL'] = $envValue;
+        }
+
+        if ($serverValue === null) {
+            unset($_SERVER['SHORTENER_BASE_URL']);
+        } else {
+            $_SERVER['SHORTENER_BASE_URL'] = $serverValue;
+        }
+
+        if ($processValue === false) {
+            putenv('SHORTENER_BASE_URL');
+        } else {
+            putenv('SHORTENER_BASE_URL=' . $processValue);
+        }
+    }
+
     private function persistLinkForTracking(string $slug, string $url): void
     {
         $entityManager = $this->service('doctrine.orm.default_entity_manager');
